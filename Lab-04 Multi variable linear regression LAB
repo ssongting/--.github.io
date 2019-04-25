@@ -53,3 +53,69 @@ for i in range(1000+1):      #Gradientdescent 함수를 이용해 구현
   900 |       9.6325
   950 |       9.6229
  1000 |       9.6134
+
+
+#Matrix사용하여 구현-----------------------
+
+data = np.array([
+    # X1,   X2,    X3,   y
+    [ 73.,  80.,  75., 152. ],     # X데이터는 5행3렬짜리이다.
+    [ 93.,  88.,  93., 185. ],
+    [ 89.,  91.,  90., 180. ],
+    [ 96.,  98., 100., 196. ],
+    [ 73.,  66.,  70., 142. ]
+], dtype=np.float32)
+
+# slice data
+X = data[:, :-1]   #X는 5행3열짜리 입력 데이터 
+y = data[:, [-1]]  #Y는 5행1열짜리 출력데이터
+
+W = tf.Variable(tf.random_normal([3, 1]))  #W row수는 3개고 col수는1 이다, 3by1행렬이다. 변수는3개지만 출력은 1개이다.
+b = tf.Variable(tf.random_normal([1]))     #b는 1이다.
+
+learning_rate = 0.000001  #러닝레이트 상수는 작은 상수값으로 0.000001로 지정한다.
+
+# hypothesis, prediction function
+def predict(X):  #predict함수는 XW로 정의하였다 b는 생략가능하다.
+    return tf.matmul(X, W) + b
+
+print("epoch | cost")
+
+n_epochs = 2000   #Gradient 알고리즘 순회  
+for i in range(n_epochs+1):     #n_epochs+1만큼 반복한다(2000번의 반복)
+    with tf.GradientTape() as tape:  #변수의 계산값들을 tape에 기록한다.
+        cost = tf.reduce_mean((tf.square(predict(X) - y)))  #cost함수식이다.
+
+    W_grad, b_grad = tape.gradient(cost, [W, b])  #W,b 미분값을 업데이트 시켜준다.
+
+    #W와 b를 지속적으로 업데이트함
+    W.assign_sub(learning_rate * W_grad)
+    b.assign_sub(learning_rate * b_grad)
+    
+    if i % 100 == 0:   #100번마다 w값을 기록한다.
+        print("{:5} | {:10.4f}".format(i, cost.numpy()))
+        
+        
+#결과값
+epoch | cost
+    0 |  5455.5903
+  100 |    31.7443
+  200 |    30.9326
+  300 |    30.7894
+  400 |    30.6468
+  500 |    30.5055
+  600 |    30.3644
+  700 |    30.2242
+  800 |    30.0849
+  900 |    29.9463
+ 1000 |    29.8081
+ 1100 |    29.6710
+ 1200 |    29.5348
+ 1300 |    29.3989
+ 1400 |    29.2641
+ 1500 |    29.1299
+ 1600 |    28.9961
+ 1700 |    28.8634
+ 1800 |    28.7313
+ 1900 |    28.5997
+ 2000 |    28.4689
