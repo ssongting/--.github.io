@@ -1,0 +1,44 @@
+import tensoflow.contrib.eager as tfe        #eager모드 실행을 위한 라이브러리 실행 
+tf.enable_eager_execution()         #eager 모드 실행을 위해 excution을 선언한다
+dataset = tf.data.Dataset.from_tensor_slices((x_train, y_train)).batch(len(x_train))     #tf데이타를 통해서 우리가 원하는 x값과 y값을 실제 
+x의 길이(len(x_train))만큼 학습을 하겠다는것을(batch) 토대로 데이터 값을 가져온다.
+W = tf.Variable(tf.zeros([2, 1]), name='weight')  #w는 2행1열이고 이름은 weight로 지정한다.
+b = tf.Variable(tf.zeros([1]), name='bias')    #b값을 지정하고 이름은 bias로 한다.
+
+#로지스틱 리그레션
+def logistic_regression(features):
+    hypothesis  = tf.div(1., 1. + tf.exp(tf.matmul(features, W) + b))  
+    return hypothesis           #리니어값을 exp(시그모이드함수)을 통해 hypothesis의 값을 그려낸다. 
+def loss_fn(features, labels): #label값과 hypothoesis값을 통해서 우리가 원하는 cost값 구하기
+    hypothesis = logistic_regression(features)
+    cost = -tf.reduce_mean(labels * tf.log(loss_fn(hypothesis) + (1 - labels) * tf.log(1 - hypothesis)) #cost함수식정리
+    return cost    
+def grad(hypothesis, features, labels):          #학습을 위해 hypothesis와 label이 나오면 loss값에(loss_fn)가설값과 
+실제값을 비교한 로스값(loss_value)을 구할수 있다.
+    with tf.GradientTape() as tape:
+        loss_value = loss_fn(hypothesis,labels)
+    return tape.gradient(loss_value, [W,b]) #gradient를 통해 우리의 모델값(W,b)를 바꿔간다. 
+optimizer = tf.train.GradientDescentOptimizer(learning_rate=0.01) #GrradientDescentOptimizer를 통해 실제 우리가 이동할 
+러닝레이트를 통한 값으로 optimizer를 선언한다.
+
+#지금까지 선언한 함수들을 실제 학습을 위해 호출함
+for step in range(EPOCHS):   
+    for features, labels  in tfe.Iterator(dataset):     #우리가 가져온 dataset을 통해 Iterator를시켜서 
+    실제 x값과 y값(features,labels)을 넣어 가면서 모델을 만들어간다.
+        grads = grad(logistic_regression(features), features, labels)    #x값과 y값이 나오게 된것을 실제 가설을 집어넣어서 학습을 위한
+        grads값이 나오게된다.
+        optimizer.apply_gradients(grads_and_vars=zip(grads,[W,b]))       #나오게된 grad값을 optimizer를 통해 계속 minimize하는 것을 구한다.
+        이과정을 통해 w,b가 업데이트 되면서 최적의 값을 나타낼수 있게된다.
+        if step % 100 == 0:                    #100번마다 Iter와 Loss값이 줄어드는 것을 출력한다.
+            print("Iter: {}, Loss: {:.4f}".format(step, loss_fn(logistic_regression(features),features,labels)))
+
+#정확하게 되는 모델이 맞는지 확인 과정           
+def accuracy_fn(hypothesis, labels):              #accuracy_fn: hypothesis와 labels를비교하기 위한 함수선언
+    predicted = tf.cast(hypothesis > 0.5, dtype=tf.float32)         #x값을 넣었을때의 hypothesis는 logistic fn을 통해 나온값임
+    #모델이 0과1을 결정하기 위한 구간을 hypothesis가 나온값이 시그모이드의 1과 0의 사이로 나온것을 0.5로 통해 
+    예측된 값(predicted)이 나오게됨
+    accuracy = tf.reduce_mean(tf.cast(tf.equal(predicted, labels), dtype=tf.int32))   #실제 값과 예측되어 나온값을 비교해서 이값이 
+    실제로 맞는지 안맞는지 accuracy를 출력시켜주게됨
+    return accuracy
+    
+test_acc = accuracy_fn(logistic_regression(x_test),y_test)   #test_acc를 x_test와 y_test를 넣어서 출력해냄
