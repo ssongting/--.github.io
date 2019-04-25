@@ -1,0 +1,131 @@
+#코스트를 파이썬 코드로 구현--------------------------------------- 
+
+import numpy as np   #numpy를 임포트하고 np로 지정한다
+
+X = np.array([1, 2, 3])  #입력값 X =1,2,3
+Y = np.array([1, 2, 3])  #출력값 Y =1,2,3
+
+def cost_func(W, X, Y):    #w값이 주어졌을때 cost를 계산하는함수
+    c = 0
+    for i in range(len(X)):
+        c += (W * X[i] - Y[i]) ** 2        # W * X[i] 부분은 우리의 하이포시스를 의미하고 거기에 실제값 Y[i] 을빼준것이다. 이오차를 제곱한 값을
+    return c / len(X)                      #c에 누적 시켜서 데이터의 갯수로 나눔             
+
+for feed_W in np.linspace(-3, 5, num=15):    #np.linspace 는 구간값을 가지게 하는 함수로-3에서 5사이의 15개의 구간값을 가지게한다.
+    curr_cost = cost_func(feed_W, X, Y)      #W값에 따라 cost가 얼마가 나오는지 출력   
+    print("{:6.3f} | {:10.5f}".format(feed_W, curr_cost))
+    
+#출력값    
+-3.000 |   74.66667
+-2.429 |   54.85714
+-1.857 |   38.09524
+-1.286 |   24.38095
+-0.714 |   13.71429
+-0.143 |    6.09524
+ 0.429 |    1.52381
+ 1.000 |    0.00000
+ 1.571 |    1.52381
+ 2.143 |    6.09524
+ 2.714 |   13.71429
+ 3.286 |   24.38095
+ 3.857 |   38.09524
+ 4.429 |   54.85714
+ 5.000 |   74.66667
+ 
+ 
+#cost를 Tensorflow로 구현------------------------------------------
+
+X = np.array([1, 2, 3])   #입력값 X=1, 2, 3
+Y = np.array([1, 2, 3])   #출력값 Y=1, 2, 3
+
+def cost_func(W, X, Y):    #cost 함수식 구현하기
+  hypothesis = X * W       #하이포시스 함수식
+  return tf.reduce_mean(tf.square(hypothesis - Y))    #hypothesis y를뺀후 그것을 제곱(tf.square)하여 평균(tf.reduce.mean)을 낸다.
+
+W_values = np.linspace(-3, 5, num=15)  #np의 linspace를 활용하여(np.linspace) -3에서 5까지의 구간을 15개로 쪼갠다. 그리고 그값을 list로 받는다
+cost_values = []
+
+for feed_W in W_values :    #받은 list 값을 하나하나 뽑아 W값으로 사용하여
+    curr_cost = cost_func(feed_W, X, Y)   #코스트가 W에따라 어떻게 변하는지를 기록햇다가 출력한다.
+    cost_values.append(curr_cost)
+    print("{:6.3f} | {:10.5f}".format(feed_W, curr_cost))
+    
+#출력값
+-3.000 |   74.66667
+-2.429 |   54.85714
+-1.857 |   38.09524
+-1.286 |   24.38095
+-0.714 |   13.71429
+-0.143 |    6.09524
+ 0.429 |    1.52381
+ 1.000 |    0.00000
+ 1.571 |    1.52381
+ 2.143 |    6.09524
+ 2.714 |   13.71429
+ 3.286 |   24.38095
+ 3.857 |   38.09524
+ 4.429 |   54.85714
+ 5.000 |   74.66667
+ 
+  
+ #Gradient decsent -----------------------------------------------------    
+ alpha = 0.01
+ gradient = tf.reduce_mean(tf.multiply(tf.multiply(W, X) - Y, X)) #gradient를 구한다. WX -Y 한것에 X를 곱하고(tf.multiply) 이값의 평균을 구한다.
+ descent = W - tf.multiply(alpha,gradient) #descent를 구한다 : gradient에 alpha값을 곱하고(tf.multiply) W에서 빼준다. desent는 새로운 W값이다.
+ W.assign(descent)  #새로운 W값을 W에 할당함으로써 업데이트한다.
+ 
+ 
+ #Gradient descent 구현------------------------------------------------
+ 
+tf.set_random_seed(0)       #random_seed를 초기화시킨다.(다음에 코드를 다시수행했을때도 동일하게 똑같이 재현될수있도록 하기위해 특정한값으로 초기화)
+ 
+x_data = [1., 2., 3., 4.]   # x입력값=1, 2, 3, 4
+y_data = [1., 3., 5., 7.]   # y입력값=1, 2, 2, 4
+
+W = tf.Variable(tf.random_normal([1], -100., 100.))  #변수 W를 정의 이때 tf.random_normal은 정규분포를 따르는 랜덤 숫자를 
+1개짜리 변수로 만들어서 w에 할당해서 정의하는것.
+
+for step in range(300):  #  W.assign descent 까지의 과정을 300번 반복한다.
+    hypothesis = W * X
+    cost = tf.reduce_mean(tf.square(hypothesis - Y))
+
+    alpha = 0.01            #Gradient decsent 코드 : 위에 Gradient decsent 코드리뷰를 이미 해놓았다.
+    gradient = tf.reduce_mean(tf.multiply(tf.multiply(W, X) - Y, X))    #gradient를 구한다. WX -Y 한것에 X를 곱하고(tf.multiply) 이값의 평균을 구한다.
+    descent = W - tf.multiply(alpha, gradient)        #descent를 구한다 : gradient에 alpha값을 곱하고(tf.multiply) W에서 빼준다. desent는 새로운 W값이다.         
+    W.assign(descent)       #새로운 W값을 W에 할당함으로써 업데이트한다.     
+     
+    if step % 10 == 0:       #10번에 한번씩 cost값과 W값을 출력을 해본다
+        print('{:5} | {:10.4f} | {:10.6f}'.format(
+            step, cost.numpy(), W.numpy()[0]))
+            
+ #결과출력 
+    0 | 11716.3086 |  48.767971
+   10 |  4504.9126 |  30.619968
+   20 |  1732.1364 |  19.366755
+   30 |   666.0052 |  12.388859
+   40 |   256.0785 |   8.062004
+   50 |    98.4620 |   5.379007
+   60 |    37.8586 |   3.715335
+   70 |    14.5566 |   2.683725
+   80 |     5.5970 |   2.044044
+   90 |     2.1520 |   1.647391
+  100 |     0.8275 |   1.401434
+  110 |     0.3182 |   1.248922
+  120 |     0.1223 |   1.154351
+  130 |     0.0470 |   1.095710
+  140 |     0.0181 |   1.059348
+  150 |     0.0070 |   1.036801
+  160 |     0.0027 |   1.022819
+  170 |     0.0010 |   1.014150
+  180 |     0.0004 |   1.008774
+  190 |     0.0002 |   1.005441
+  200 |     0.0001 |   1.003374
+  210 |     0.0000 |   1.002092
+  220 |     0.0000 |   1.001297
+  230 |     0.0000 |   1.000804
+  240 |     0.0000 |   1.000499
+  250 |     0.0000 |   1.000309
+  260 |     0.0000 |   1.000192
+  270 |     0.0000 |   1.000119
+  280 |     0.0000 |   1.000074
+  290 |     0.0000 |   1.000046
