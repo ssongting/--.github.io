@@ -1,0 +1,55 @@
+# data and label    
+x1 = [ 73.,  93.,  89.,  96.,  73.]
+x2 = [ 80.,  88.,  91.,  98.,  66.]
+x3 = [ 75.,  93.,  90., 100.,  70.]
+Y  = [152., 185., 180., 196., 142.]     #x1,x2,x3,Y의 데이터값들
+
+# random weights
+w1 = tf.Variable(tf.random_normal([1]))     #w1,w2,w3,b,의 초기값들을 1로주어주었다.
+w2 = tf.Variable(tf.random_normal([1]))
+w3 = tf.Variable(tf.random_normal([1]))
+b  = tf.Variable(tf.random_normal([1]))
+
+learning_rate = 0.000001  #러닝레이트 상수를 0.000001로 지정한다.
+
+for i in range(1000+1):      #Gradientdescent 함수를 이용해 구현
+    with tf.GradientTape() as tape:  #tf.GradientTape:아래 변수들의 계산값들을 Tape에 기록한다.
+        hypothesis = w1 * x1 +  w2 * x2 + w3 * x3 + b
+        cost = tf.reduce_mean(tf.square(hypothesis - Y))  #cost 정의: hypothesis에서 실제데이터값을 뺀값을 제곱(tf.square)하여 
+        평균(tf.reduce_mean) 을 낸다 
+    w1_grad, w2_grad, w3_grad, b_grad = tape.gradient(cost, [w1, w2, w3, b])   #tape의 gradient를 호출하여
+    함수에 대한 4개의변수(w1,w2,w3,b) 들에 대한 기울기값을 구한다.
+    #w1_grad,w2_grad, w3_grad, b_grad에 4개의 gradient값이 할당이 된다.
+    
+    #w1,w2,w3 와 b값을 업데이트해준다.
+    w1.assign_sub(learning_rate * w1_grad)  #gradient값에 learning_rate를 곱해서 그값을 빼서 할당을 해준다.(w2,w3,b도 동일)
+    w2.assign_sub(learning_rate * w2_grad)
+    w3.assign_sub(learning_rate * w3_grad)
+    b.assign_sub(learning_rate * b_grad)     #여기까지가 경사하강법을 구현해 w값을 업데이트해나가는과정
+    
+   
+    if i % 50 == 0:          #50번마다 cost값을 출력하도록 하였다
+      print("{:5} | {:12.4f}".format(i, cost.numpy()))
+   
+   #결과값
+    0 |   11325.9121
+   50 |     135.3618
+  100 |      11.1817
+  150 |       9.7940
+  200 |       9.7687
+  250 |       9.7587
+  300 |       9.7489
+  350 |       9.7389
+  400 |       9.7292
+  450 |       9.7194
+  500 |       9.7096
+  550 |       9.6999
+  600 |       9.6903
+  650 |       9.6806
+  700 |       9.6709
+  750 |       9.6612
+  800 |       9.6517
+  850 |       9.6421
+  900 |       9.6325
+  950 |       9.6229
+ 1000 |       9.6134
