@@ -13,7 +13,7 @@ def loss_fn(features, labels): #label값과 hypothoesis값을 통해서 우리�
     hypothesis = logistic_regression(features)
     cost = -tf.reduce_mean(labels * tf.log(loss_fn(hypothesis) + (1 - labels) * tf.log(1 - hypothesis)) #cost함수식정리
     return cost    
-def grad(hypothesis, features, labels):          #학습을 위해 hypothesis와 label이 나오면 loss값에(loss_fn)가설값과 
+def grad(hypothesis, features, labels):          #hypothesis와 label이 나오면 loss값에(loss_fn)가설값과 
 실제값을 비교한 로스값(loss_value)을 구할수 있다.
     with tf.GradientTape() as tape:
         loss_value = loss_fn(hypothesis,labels)
@@ -41,4 +41,5 @@ def accuracy_fn(hypothesis, labels):              #accuracy_fn: hypothesis와 la
     실제로 맞는지 안맞는지 accuracy를 출력시켜주게됨
     return accuracy
     
-test_acc = accuracy_fn(logistic_regression(x_test),y_test)   #test_acc를 x_test와 y_test를 넣어서 출력해냄
+test_acc = accuracy_fn(logistic_regression(x_test),y_test)   
+#test_acc를 x_test와 y_test를 넣어서 출력해냄
