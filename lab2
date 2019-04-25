@@ -1,0 +1,36 @@
+import tensorflow as tf   #텐서플로우를 임포트한다.
+import numpy as np
+tf.enable_eager_execution()  #즉시실행한다
+
+x_data = [1, 2, 3, 4, 5]   #x는 입력값이다 x=1,2,3,4,5
+y_data = [1, 2, 3, 4, 5]   #y는 출력값이다 y=1,2,3,4,5
+
+W = tf.Variable(2.9)    #w의 초기값을 2.9로 한다
+b = tf.Variable(0.5)    #b의 초기값을 0.5 로 한다.
+
+Learning_rate = 0.01       #러닝레이트 상수를 0.01로 정한다
+
+for i in range(100+1):                          #경사 하강 알고리즘법을 100번 반복한다.
+    with tf.GradientTape() as tape:                 #경사하강 알고리즘 구현 tape에 변수들에 대한 정보 기록
+        hypothesis = W * x_data + b              #hypothsis의 함수식
+        cost = tf.reduce_mean(tf.square(hypothesis - y_data))            # 가설과 실제데이터의 차이, 즉 에러 제곱의 평균 
+    W_grad, b_grad = tape.gradient(cost, [W, b])                         #cost함수에대해  w,b에 대한 미분값을 각각 구해 w,b를 업데이트한다.
+    W.assign_sub(learning_rate * W_grad)                                 #assign_sb 호출 ,gradient 얼마나 반영할지 learning_rate가 결정.
+    b.assign_sub(learning_rate * b_grad)                                 #여기까지가 w,b한번 업데이트 되는과정
+    if i % 10 == 0:                                        #w,b,cost 중간중간 얼마나 변하는지 확인 if값이 10의 배수가 될때마다 내용을 출력한다.
+      print("{:5}|{:10.4f}|{:10.4f}|{:10.6f}".format(i, W.numpy(), b.numpy(), cost))  
+     
+     
+print()
+
+#결과 -------------------------------------
+0|    2.4520|    0.3760| 45.660004
+   10|    1.1036|    0.0034|  0.206336
+   20|    1.0128|   -0.0209|  0.001026
+   30|    1.0065|   -0.0218|  0.000093
+   40|    1.0059|   -0.0212|  0.000083
+   50|    1.0057|   -0.0205|  0.000077
+   60|    1.0055|   -0.0198|  0.000072
+   70|    1.0053|   -0.0192|  0.000067
+   80|    1.0051|   -0.0185|  0.000063
+   90|    1.0050|   -0.0179|  0.000059
